@@ -21,63 +21,62 @@ MenuEats/
 ├── .gitignore
 │
 ├── frontend/
-│   └── web-app/                        # React Frontend
+│   └── menueats-app/                   # React Frontend (Vite)
 │       ├── package.json
+│       ├── vite.config.js
 │       ├── src/
-│       └── public/
+│       │   ├── App.jsx               # Root component of application
+│       │   ├── components/           # Reusable UI components
+│       │   ├── pages/                # Page components (Home, Menu, About, etc.)
+│       │   ├── services/             # API calls, external services
+│       │   ├── hooks/                # Custom React hooks
+│       │   └── utils/                # Helper functions, constants
+│       └── public/                   # logo
 │
 ├── backend/
-│   ├── api-gateway/                    # Spring Cloud API Gateway
-│   │   ├── pom.xml
-│   │   └── src/main/java/
+│   ├── pom.xml                        # Root Parent Maven POM
+│   ├── mvnw                           # Unix/Linux Maven Wrapper
+│   ├── mvnw.cmd                       # Window Maven Wrapper
+│   │
+│   ├── api-gateway/                   # Spring Cloud API Gateway
+│   │   └── pom.xml
+│   │
+│   ├── config-service/                # Spring Cloud Config
+│   │   └── pom.xml
 │   │
 │   ├── services/
-│   │   ├── restaurant-service/         # JPA Service
-│   │   │   ├── pom.xml
-│   │   │   ├── src/main/java/
-│   │   │   └── src/main/resources/
+│   │   ├── discovery-service/         # Service Registry
+│   │   │   └── pom.xml
 │   │   │
-│   │   ├── ordering-service/           # JPA Service  
-│   │   │   ├── pom.xml
-│   │   │   ├── src/main/java/
-│   │   │   └── src/main/resources/
+│   │   ├── restaurant-service/        # JPA Service
+│   │   │   └── pom.xml
 │   │   │
-│   │   ├── discovery-service/          # JPA Service
-│   │   │   ├── pom.xml
-│   │   │   ├── src/main/java/
-│   │   │   └── src/main/resources/
+│   │   ├── ordering-service/          # JPA Service  
+│   │   │   └── pom.xml
 │   │   │
-│   │   └── logistic-service/           # JPA Service
-│   │       ├── pom.xml
-│   │       ├── src/main/java/
-│   │       └── src/main/resources/
+│   │   └── logistics-service/         # JPA Service
+│   │       └── pom.xml
 │   │
-│   └── chatbot-service/                # LLM + LangChain
-│   |   ├── requirements.txt
-│   |   └── app.py
+│   ├── chatbot-llm/                   # LLM + LangChain Python Service
+│   │   ├── requirements.txt
+│   │   └── app.py
 │   │
-│   └── databases/
-│      ├── restaurant-db/              # H2 SQL Local
-│      │   └── init.sql
-│      └── ordering-db/                # H2 SQL Local  
-│         └── init.sql
-|
-├── infrastructure/
-│   └── kafka/                          # Local Kafka setup
-│       └── config/                     # Kafka configuration files
+│   └── shared/                        # Shared Maven modules
+│       ├── common/                    # Common utilities
+│       ├── events/                    # Event schemas 
+│       └── configs/                   # Spring Cloud Stream configurations
 │
-├── shared/
-│   ├── events/                         # Event schemas 
-│   ├── common/                         # Shared utilities
-│   └── configs/                        # Spring Cloud Stream configurations
+├── docs/
+│   ├── architecture/                  # System design documentation
+│   │   ├── system-design.md
+│   │   ├── event-flow.md
+│   │   └── api-specs/
+│   │ 
+│   └── deployment/                    # Deployment guidelines
 │
-└── docs/
-    ├── architecture/                   # System design documentation
-    │   ├── system-design.md
-    │   ├── event-flow.md
-    │   └── api-specs/
-    │ 
-    └── deployment/                    # Deployment guidelines ( Deciding )
+└── infrastructure/
+    └── kafka/                         # Local Kafka setup
+        └── config/                    # Kafka configuration files
 ```
 
 ## Prerequisites
