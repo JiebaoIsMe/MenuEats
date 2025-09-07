@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Link } from "react-router-dom"
 
 export default function LandingPage() {
   return (
@@ -27,10 +28,16 @@ export default function LandingPage() {
             Track Order
           </Button>
         </nav>
-
-        <Button className="bg-gray-900 text-white hover:bg-gray-800 rounded-full px-6">
-          Login/Signup
-        </Button>
+        <Link to="/login">
+          <Button className="bg-gray-900 text-white hover:bg-gray-800 rounded-full px-6">
+            Login
+          </Button>
+        </Link>
+        <Link to="/signup">
+          <Button className="bg-gray-900 text-white hover:bg-gray-800 rounded-full px-6">
+            Signup
+          </Button>
+        </Link>
       </header>
 
       {/* Location Bar */}
