@@ -8,16 +8,23 @@ import com.user.repository.UserProfileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Arrays;
+import java.util.Map;
+
 
 @Service
-@Transactional
 public class UserService {
     
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private RestTemplate restTemplate;
     
     @Autowired
     private UserProfileRepository userProfileRepository;
@@ -93,6 +100,63 @@ public class UserService {
                     .orElseThrow(() -> new RuntimeException("User not found"));
             profileDetails.setUser(user);
             return userProfileRepository.save(profileDetails);
+        }
+    }
+
+    public Object getAllRestaurants(){
+        try {
+            String restaurantServiceUrl = 
+            "http://localhost:8081/api/restaurants";
+            return restTemplate.getForObject(restaurantServiceUrl, Object.class);
+        } catch (Exception e) {
+            throw new RuntimeException("Error calling restaurant service: " 
+            + e.getMessage());
+        }
+    }
+
+    public Object getRestaurantByName(String name) {
+        try {
+            String restaurantServiceUrl = "http://localhost:8081/api/restaurants";
+            Map[] restaurants = restTemplate.getForObject(restaurantServiceUrl, Map[].class);
+            
+            return Arrays.stream(restaurants)
+                    .filter(r -> r.get("name").toString().toLowerCase().contains(name.toLowerCase()))
+                    .toArray();
+        } catch (Exception e) {
+            throw new RuntimeException("Error searching restaurants: " + e.getMessage());
+        }
+    }
+
+    public Object getRestaurantsByOwnerId(Long userId) {
+        try {
+            String restaurantServiceUrl = "http://localhost:8081/api/restaurants";
+            Map<String, Object>[] restaurants = restTemplate.getForObject(restaurantServiceUrl, Map[].class);
+            
+            // Filter restaurants by owner_id
+            return Arrays.stream(restaurants)
+                    .filter(restaurant -> {
+                        Object ownerId = restaurant.get("ownerId");
+                        return ownerId != null && ownerId.toString().equals(userId.toString());
+                    })
+                    .toArray();
+        } catch (Exception e) {
+            throw new RuntimeException("Error calling restaurant service: " 
+            + e.getMessage());
+        }
+    }
+    
+    public Object getRestaurantsByOwnerName(String ownerName) {
+        try {
+            // First, find user by username
+            Optional<User> user = getUserByUsername(ownerName);
+            if (user.isPresent()) {
+                // Then get restaurants by user ID
+                return getRestaurantsByOwnerId(user.get().getId());
+            } else {
+                throw new RuntimeException("Owner not found: " + ownerName);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Error finding restaurants by owner name: " + e.getMessage());
         }
     }
 }

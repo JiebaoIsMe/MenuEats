@@ -13,10 +13,12 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/users")
-public class UserController {
+@CrossOrigin
+public class UserControllers {
     
     @Autowired
     private UserService userService;
+    
     
     @GetMapping
     public List<User> getAllUsers() {
@@ -92,4 +94,51 @@ public class UserController {
             return ResponseEntity.notFound().build();
         }
     }
+    
+    // Get restaurants from restaurant service
+    @GetMapping("/restaurants")
+    public ResponseEntity<?> getAllRestaurants() {
+        try {
+            Object restaurants = userService.getAllRestaurants();
+            return ResponseEntity.ok(restaurants);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error calling restaurant service: " + e.getMessage());
+        }
+    }
+    
+    // Get restaurants by owner (for restaurant owners)
+    @GetMapping("/{userId}/restaurants")
+    public ResponseEntity<?> getRestaurantsByOwnerId(@PathVariable Long userId) {
+        try {
+            Object restaurants = userService.getRestaurantsByOwnerId(userId);
+            return ResponseEntity.ok(restaurants);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error calling restaurant service: " + e.getMessage());
+        }
+    }
+
+
+    // Get restaurants by owner (for restaurant owners)
+    @GetMapping("owner/{ownerName}/restaurants")
+    public ResponseEntity<?> getRestaurantsByOwnerName(@PathVariable String ownerName) {
+        try {
+            Object restaurants = userService.getRestaurantsByOwnerName(ownerName);
+            return ResponseEntity.ok(restaurants);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error calling restaurant service: " + e.getMessage());
+        }
+    }
+    
+    // Search restaurants by name
+    @GetMapping("/restaurants/search/{name}")
+    public ResponseEntity<?> getRestaurantByName(@PathVariable String name) {
+        try {
+            Object restaurants = userService.getRestaurantByName(name);
+            return ResponseEntity.ok(restaurants);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error searching restaurants: " + e.getMessage());
+        }
+    }
+    
+
 }

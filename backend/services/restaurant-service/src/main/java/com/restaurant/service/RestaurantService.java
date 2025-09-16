@@ -3,8 +3,11 @@ package com.restaurant.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import jakarta.persistence.EntityNotFoundException;
+
 import com.restaurant.repository.RestaurantRepository;
 import com.restaurant.model.Restaurant;
+
 
 import java.util.List;
 
@@ -19,27 +22,24 @@ public class RestaurantService {
     }
 
     public Restaurant getRestaurantById(long id){
-        return restaurantRepo.findById(id).orElse(new Restaurant());
+        return restaurantRepo.findById(id).orElseThrow(()-> new EntityNotFoundException(
+            "Restaurant not found with id:" + id 
+        ));
     }
 
     
-    public void addRestaurant(Restaurant restaurant){
-        restaurantRepo.save(restaurant);
+    public Restaurant addRestaurant(Restaurant restaurant){
+        return restaurantRepo.save(restaurant);
     }
 
-    public void updateRestaurant(Restaurant restaurant){
+    public Restaurant updateRestaurant(Restaurant restaurant){
 
-        // test
-        restaurant.setId(-1);
-        restaurant.setLocation("test");
-        restaurant.setName("test");
-        restaurant.setOwnerId(-1);
-
-        restaurantRepo.save(restaurant);
+        getRestaurantById(restaurant.getId());
+        return restaurantRepo.save(restaurant);
+        
     }
 
     public void deleteRestaurant(Long id){
-
         // match id in update or create
         restaurantRepo.deleteById(id);
     }

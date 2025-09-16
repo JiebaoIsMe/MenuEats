@@ -1,6 +1,7 @@
 package com.restaurant.controller;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -8,17 +9,20 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
 
 import com.restaurant.model.Restaurant;
 import com.restaurant.service.RestaurantService;
 
-import java.util.List;
+import com.restaurant.dto.RestaurantResponse;
+import com.restaurant.dto.CreateRestaurantRequest;
 
-import org.apache.catalina.connector.Response;
+import java.util.List;
+import java.util.ArrayList;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
 
 @RestController
 @RequestMapping("/api")
@@ -34,26 +38,114 @@ public class RestaurantControllers {
     private RestaurantService restaurantService;
 
     @GetMapping(value="/restaurants")
-    public ResponseEntity<List<Restaurant>> getAllRestaurants() {
-        return new ResponseEntity<>(restaurantService.getAllRestaurants(), HttpStatus.OK);
+    public ResponseEntity<List<RestaurantResponse>> getAllRestaurants() {
+        try {
+            // Get all restaurants from service
+            List<Restaurant> restaurants = restaurantService.getAllRestaurants();
+            
+            // Convert List<Restaurant> to List<RestaurantResponse>
+            List<RestaurantResponse> responseList = new ArrayList<>();
+            for (Restaurant restaurant : restaurants) {
+                RestaurantResponse response = new RestaurantResponse();
+                response.setId(restaurant.getId());
+                response.setName(restaurant.getName());
+                response.setLocation(restaurant.getLocation());
+                response.setOwnerId(restaurant.getOwnerId());
+                responseList.add(response);
+            }
+            
+            return new ResponseEntity<>(responseList, HttpStatus.OK);
+            
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
-    @GetMapping(value="/restaurant/{id}")
-    public Restaurant getRestaurant(@PathVariable long id) {
-            return restaurantService.getRestaurantById(id);
+    @GetMapping(value="/restaurants/{id}")
+    public ResponseEntity<RestaurantResponse> getRestaurant(@PathVariable long id) {
+        try {
+            // Get restaurant from service
+            Restaurant restaurant = restaurantService.getRestaurantById(id);
+            
+            // Convert Entity to Response
+            RestaurantResponse response = new RestaurantResponse();
+            response.setId(restaurant.getId());
+            response.setName(restaurant.getName());
+            response.setLocation(restaurant.getLocation());
+            response.setOwnerId(restaurant.getOwnerId());
+            
+            return new ResponseEntity<>(response, HttpStatus.OK);
+            
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+
+        }
+            
     }
 
-    @PostMapping(value="/restaurant/{id}")
-    public ResponseEntity<?> addRestaurant(@RequestPart Restaurant restaurant) {
+    @PostMapping(value="/restaurants")
+    public ResponseEntity<RestaurantResponse> addRestaurant(@RequestBody CreateRestaurantRequest request) {
         try{
+            // Convert JSON to DTO Entity 
+            Restaurant restaurant = new Restaurant();
+            restaurant.setName(request.getName());
+            restaurant.setLocation(request.getLocation());
+            restaurant.setOwnerId(request.getOwnerId());
+
+            // Save into repository
             restaurantService.addRestaurant(restaurant);
-            return new ResponseEntity<>(restaurant, HttpStatus.CREATED);
+
+            // Convert Entity to Response DTO
+            RestaurantResponse response = new RestaurantResponse();
+            response.setId(restaurant.getId());
+            response.setName(restaurant.getName());
+            response.setLocation(restaurant.getLocation());
+            response.setOwnerId(restaurant.getOwnerId());
+
+            return new ResponseEntity<RestaurantResponse>(response, HttpStatus.CREATED);
         }
 
         catch( Exception e){
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
     }
+    
+    @PutMapping(value="/restaurants/{id}")
+    public ResponseEntity<RestaurantResponse> updateRestaurant(@PathVariable long id, @RequestBody CreateRestaurantRequest request) {
+        try {
+            // Convert JSON to Request Entity via DTO mapping
+            Restaurant restaurant = new Restaurant();
+            restaurant.setId(id);
+            restaurant.setName(request.getName());
+            restaurant.setLocation(request.getLocation());
+            restaurant.setOwnerId(request.getOwnerId());
 
+            // Save changes into repository 
+            restaurantService.updateRestaurant(restaurant);
+
+            // Convert Entity to Response 
+            RestaurantResponse response = new RestaurantResponse();
+            response.setId(restaurant.getId());
+            response.setName(restaurant.getName());
+            response.setLocation(restaurant.getLocation());
+            response.setOwnerId(restaurant.getOwnerId());
+
+            return new ResponseEntity<RestaurantResponse>(response,HttpStatus.OK);
+            
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+
+        }
+    }
+
+    @DeleteMapping(value="/restaurants/{id}")
+    public ResponseEntity<?> deleteRestaurant(@PathVariable Long id) {
+        try {
+            restaurantService.deleteRestaurant(id);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

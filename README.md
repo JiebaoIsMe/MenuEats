@@ -72,16 +72,23 @@ MenuEats/
 │   │   │       ├── data.sql           # Initial data script (optional)
 │   │   │       └── schema.sql         # Database schema script (optional)
 │   │   │
-│   │   └── logistics-service/         # JPA Service
+│   │   ├── logistics-service/         # JPA Service
+│   │   │   ├── pom.xml
+│   │   │   ├── data/
+│   │   │   │   └── logisticsdb.mv.db  # H2 database file (file-based)
+│   │   │   └── src/main/resources/
+│   │   │       ├── application.properties # Logistics H2 database config
+│   │   │       ├── data.sql           # Initial data script (optional)
+│   │   │       └── schema.sql         # Database schema script (optional)
+│   │   │
+│   │   └── user-service/              # JPA Service  
 │   │       ├── pom.xml
-│   │       ├── data/
-│   │       │   └── logisticsdb.mv.db  # H2 database file (file-based)
 │   │       └── src/main/resources/
-│   │           ├── application.properties # Logistics H2 database config
-│   │           ├── data.sql           # Initial data script (optional)
-│   │           └── schema.sql         # Database schema script (optional)
+│   │           ├── application.properties # User H2 database config
+│   │           ├── data.sql           # Initial user data script (uses MERGE statements)
+│   │           └── userdb.mv.db       # H2 database file (file-based)
 │   │
-│   ├── chatbot-llm/                   # LLM + LangChain Python Service
+│   ├── chatbot-llm/                   # LangChain + LLM Service
 │   │   ├── requirements.txt
 │   │   └── app.py
 │   │
@@ -150,6 +157,7 @@ cd backend
 ./mvnw spring-boot:run -pl services/discovery-service
 ./mvnw spring-boot:run -pl services/restaurant-service
 ./mvnw spring-boot:run -pl services/logistics-service
+./mvnw spring-boot:run -pl services/user-service
 ./mvnw spring-boot:run -pl api-gateway
 ```
 
@@ -213,6 +221,29 @@ spring.cloud.stream.kafka.binder.brokers=localhost:9092
 spring.cloud.stream.bindings.logisticEvents-out-0.destination=logistic-events
 ```
 
+**User Service** (`backend/services/user-service/src/main/resources/application.properties`):
+```properties
+spring.application.name=user-service
+server.port=8084
+
+# H2 Database Configuration
+spring.datasource.url=jdbc:h2:file:./src/main/resources/userdb
+spring.datasource.driverClassName=org.h2.Driver
+spring.datasource.username=sa
+spring.datasource.password=password
+
+# JPA Configuration
+spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
+spring.jpa.hibernate.ddl-auto=update
+spring.h2.console.enabled=true
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+
+# Data Initialization
+spring.jpa.defer-datasource-initialization=true
+spring.sql.init.mode=never
+```
+
 **API Gateway** (`backend/api-gateway/src/main/resources/application.properties`):
 ```properties
 server.port=8080
@@ -232,8 +263,9 @@ cd backend
 ./mvnw spring-boot:run -pl services/restaurant-service
 ./mvnw spring-boot:run -pl services/ordering-service
 ./mvnw spring-boot:run -pl services/logistics-service
+./mvnw spring-boot:run -pl services/user-service
 
-# Start Chatbot Service
+# Start LangChain Chatbot Service
 cd chatbot-llm
 pip install -r requirements.txt
 python app.py
@@ -254,7 +286,8 @@ npm run dev
 - **Restaurant Service**: http://localhost:8081
 - **Ordering Service**: http://localhost:8082
 - **Logistic Service**: http://localhost:8083
-- **Chatbot Service**: http://localhost:8084
+- **User Service**: http://localhost:8084
+- **LangChain Chatbot Service**: http://localhost:8085
 - **React Frontend**: http://localhost:3000
 
 ### Apache
@@ -320,6 +353,45 @@ POST /api/chatbot/ask
 ```json
 GET /api/orders/{orderId}/status
 ```
+
+### 6. User Authentication & Profile Management
+```json
+POST /api/users/login
+{
+  "username": "admin",
+  "password": "password"
+}
+
+GET /api/users/{userId}/profile
+
+POST /api/users/register
+{
+  "username": "newuser",
+  "email": "user@example.com",
+  "password": "password",
+  "role": "CUSTOMER"
+}
+```
+
+## User Service Details
+
+The User Service manages user authentication, profiles, and role-based access control with the following features:
+
+- **File-based H2 Database**: Persistent storage at `./src/main/resources/userdb.mv.db`
+- **Initial Data**: Pre-loaded with 5 sample users including admin, customers, and restaurant owners
+- **Role Management**: Supports ADMIN, CUSTOMER, DRIVER, and RESTAURANT_OWNER roles
+- **MERGE Statements**: Uses MERGE instead of INSERT to prevent duplicate key errors on restart
+- **H2 Console**: Available at `http://localhost:8084/h2-console` for database inspection
+
+**Default Users Available:**
+- `admin` - System Administrator
+- `customer1`, `customer2` - Sample customers  
+- `pizzaowner`, `burgerowner` - Restaurant owners
+
+**Database Access:**
+- URL: `jdbc:h2:file:./src/main/resources/userdb`
+- Username: `sa`
+- Password: `password`
 
 ## Architecture Highlights
 
