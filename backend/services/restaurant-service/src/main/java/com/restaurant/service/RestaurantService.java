@@ -26,6 +26,12 @@ public class RestaurantService {
             "Restaurant not found with id:" + id 
         ));
     }
+    
+    public Restaurant getRestaurantByName(String name){
+        return restaurantRepo.findByName(name).orElseThrow(()-> new EntityNotFoundException(
+            "Restaurant not found with name: " + name
+        ));
+    }
 
     
     public Restaurant addRestaurant(Restaurant restaurant){
@@ -39,8 +45,9 @@ public class RestaurantService {
         
     }
 
-    public void deleteRestaurant(Long id){
-        // match id in update or create
-        restaurantRepo.deleteById(id);
-    }
+    // pass to admin 
+    // public void deleteRestaurant(Long id){
+    //     // match id in update or create
+    //     restaurantRepo.deleteById(id);
+    // }
 }

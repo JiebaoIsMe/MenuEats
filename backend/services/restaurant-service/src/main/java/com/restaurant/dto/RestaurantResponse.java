@@ -5,6 +5,7 @@ public class RestaurantResponse {
     private String name;
     private String location;
     private long ownerId;
+    private long menuId;
 
     // Default constructor
     public RestaurantResponse() {}
@@ -49,5 +50,13 @@ public class RestaurantResponse {
 
     public void setOwnerId(long ownerId) {
         this.ownerId = ownerId;
+    }
+
+    public long getMenuId() {
+        return menuId;
+    }
+
+    public void setMenuId(long menuId) {
+        this.menuId = menuId;
     }
 }

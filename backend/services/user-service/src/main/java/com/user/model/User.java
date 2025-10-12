@@ -19,8 +19,8 @@ public class User {
     @Column(nullable = false)
     private String password;
     
-    @Enumerated(EnumType.STRING)
-    private UserRole role;
+    @Column(name = "role", nullable = false)
+    private String role;
     
     private boolean active;
     
@@ -32,7 +32,7 @@ public class User {
     
     public User() {}
     
-    public User(String username, String email, String password, UserRole role) {
+    public User(String username, String email, String password, String role) {
         this.username = username;
         this.email = email;
         this.password = password;
@@ -54,8 +54,8 @@ public class User {
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
     
-    public UserRole getRole() { return role; }
-    public void setRole(UserRole role) { this.role = role; }
+    public String getRole() { return role; }
+    public void setRole(String role) { this.role = role; }
     
     public boolean isActive() { return active; }
     public void setActive(boolean active) { this.active = active; }

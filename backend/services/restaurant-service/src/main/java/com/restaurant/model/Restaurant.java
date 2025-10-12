@@ -22,6 +22,8 @@ public class Restaurant {
 
     private String location;
 
+    private Long menu_id;
+
     public long getId() {
         return id;
     }
@@ -53,4 +55,13 @@ public class Restaurant {
     public void setLocation(String location) {
         this.location = location;
     }
+
+    public Long getMenu_id() {
+        return menu_id;
+    }
+
+    public void setMenu_id(Long menu_id) {
+        this.menu_id = menu_id;
+    }
+
 }

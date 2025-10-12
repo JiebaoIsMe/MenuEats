@@ -53,7 +53,7 @@ public class RestaurantControllers {
                 response.setOwnerId(restaurant.getOwnerId());
                 responseList.add(response);
             }
-            
+            // Convert from RestaurantResponse to JSON data with HttpStatus
             return new ResponseEntity<>(responseList, HttpStatus.OK);
             
         } catch (Exception e) {
@@ -62,7 +62,7 @@ public class RestaurantControllers {
     }
 
     @GetMapping(value="/restaurants/{id}")
-    public ResponseEntity<RestaurantResponse> getRestaurant(@PathVariable long id) {
+    public ResponseEntity<RestaurantResponse> getRestaurantById(@PathVariable long id) {
         try {
             // Get restaurant from service
             Restaurant restaurant = restaurantService.getRestaurantById(id);
@@ -84,6 +84,7 @@ public class RestaurantControllers {
     }
 
     @PostMapping(value="/restaurants")
+    // Response here is for notification sucess or failed to interact with database
     public ResponseEntity<RestaurantResponse> addRestaurant(@RequestBody CreateRestaurantRequest request) {
         try{
             // Convert JSON to DTO Entity 
@@ -139,13 +140,14 @@ public class RestaurantControllers {
         }
     }
 
-    @DeleteMapping(value="/restaurants/{id}")
-    public ResponseEntity<?> deleteRestaurant(@PathVariable Long id) {
-        try {
-            restaurantService.deleteRestaurant(id);
-            return new ResponseEntity<>(HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+    // only for admin, overscoped
+    // @DeleteMapping(value="/restaurants/{id}")
+    // public ResponseEntity<?> deleteRestaurant(@PathVariable Long id) {
+    //     try {
+    //         restaurantService.deleteRestaurant(id);
+    //         return new ResponseEntity<>(HttpStatus.OK);
+    //     } catch (Exception e) {
+    //         return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    //     }
+    // }
 }

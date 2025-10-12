@@ -2,13 +2,13 @@ package com.user.controller;
 
 import com.user.model.User;
 import com.user.model.UserProfile;
-import com.user.model.UserRole;
 import com.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -49,7 +49,7 @@ public class UserControllers {
     }
     
     @GetMapping("/role/{role}")
-    public List<User> getUsersByRole(@PathVariable UserRole role) {
+    public List<User> getUsersByRole(@PathVariable String role) {
         return userService.getUsersByRole(role);
     }
     
@@ -106,7 +106,7 @@ public class UserControllers {
         }
     }
     
-    // Get restaurants by owner (for restaurant owners)
+    // Get restaurants by owner id(for restaurant owners)
     @GetMapping("/{userId}/restaurants")
     public ResponseEntity<?> getRestaurantsByOwnerId(@PathVariable Long userId) {
         try {
@@ -118,7 +118,7 @@ public class UserControllers {
     }
 
 
-    // Get restaurants by owner (for restaurant owners)
+    // Get restaurants by owner name (for restaurant owners)
     @GetMapping("owner/{ownerName}/restaurants")
     public ResponseEntity<?> getRestaurantsByOwnerName(@PathVariable String ownerName) {
         try {
@@ -140,5 +140,179 @@ public class UserControllers {
         }
     }
     
+    // ===== BUSINESS OWNER RESTAURANT CRUD =====
+    
+    @PostMapping("/{ownerId}/restaurants")
+    public ResponseEntity<?> createRestaurant(@PathVariable Long ownerId, @RequestBody Map<String, Object> restaurantData) {
+        try {
+            Object result = userService.createRestaurant(ownerId, restaurantData);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(403).body(e.getMessage());
+        }
+    }
+    
+    @PutMapping("/{ownerId}/restaurants/{restaurantId}")
+    public ResponseEntity<?> updateRestaurant(@PathVariable Long ownerId, @PathVariable Long restaurantId, @RequestBody Map<String, Object> restaurantData) {
+        try {
+            Object result = userService.updateRestaurant(ownerId, restaurantId, restaurantData);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(403).body(e.getMessage());
+        }
+    }
+    
+    @DeleteMapping("/{ownerId}/restaurants/{restaurantId}")
+    public ResponseEntity<?> deleteRestaurant(@PathVariable Long ownerId, @PathVariable Long restaurantId) {
+        try {
+            Object result = userService.deleteRestaurant(ownerId, restaurantId);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(403).body(e.getMessage());
+        }
+    }
+    
+    // ===== BUSINESS OWNER MENU CRUD =====
+    
+    @PostMapping("/{ownerId}/restaurants/{restaurantId}/menu")
+    public ResponseEntity<?> createMenuItem(@PathVariable Long ownerId, @PathVariable Long restaurantId, @RequestBody Map<String, Object> menuData) {
+        try {
+            Object result = userService.createMenuItem(ownerId, restaurantId, menuData);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(403).body(e.getMessage());
+        }
+    }
+    
+    @PutMapping("/{ownerId}/restaurants/{restaurantId}/menu/{menuItemId}")
+    public ResponseEntity<?> updateMenuItem(@PathVariable Long ownerId, @PathVariable Long restaurantId, @PathVariable String menuItemId, @RequestBody Map<String, Object> menuData) {
+        try {
+            Object result = userService.updateMenuItem(ownerId, restaurantId, menuItemId, menuData);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(403).body(e.getMessage());
+        }
+    }
+    
+    @DeleteMapping("/{ownerId}/restaurants/{restaurantId}/menu/{menuItemId}")
+    public ResponseEntity<?> deleteMenuItem(@PathVariable Long ownerId, @PathVariable Long restaurantId, @PathVariable String menuItemId) {
+        try {
+            Object result = userService.deleteMenuItem(ownerId, restaurantId, menuItemId);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(403).body(e.getMessage());
+        }
+    }
+    
+    // ===== RIDER DELIVERY METHODS =====
+    
+    @GetMapping("/{riderId}/delivery/restaurants")
+    public ResponseEntity<?> getAllRestaurantsForDelivery(@PathVariable Long riderId) {
+        try {
+            Object restaurants = userService.getAllRestaurantsForDelivery(riderId);
+            return ResponseEntity.ok(restaurants);
+        } catch (Exception e) {
+            return ResponseEntity.status(403).body(e.getMessage());
+        }
+    }
+    
+    // These endpoints should be handled by order/delivery service
+    /*
+    @PutMapping("/{riderId}/delivery/orders/{orderId}/status")
+    public ResponseEntity<?> updateDeliveryStatus(@PathVariable Long riderId, @PathVariable Long orderId, @RequestBody Map<String, String> statusData) {
+        try {
+            String status = statusData.get("status");
+            Object result = userService.updateDeliveryStatus(riderId, orderId, status);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(403).body(e.getMessage());
+        }
+    }
+    
+    @PutMapping("/{riderId}/delivery/location")
+    public ResponseEntity<?> updateRiderLocation(@PathVariable Long riderId, @RequestBody Map<String, Object> locationData) {
+        try {
+            Object result = userService.updateRiderLocation(riderId, locationData);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(403).body(e.getMessage());
+        }
+    }
+    
+    @GetMapping("/{riderId}/delivery/orders/{orderId}/customer")
+    public ResponseEntity<?> getDeliveryCustomerInfo(@PathVariable Long riderId, @PathVariable Long orderId) {
+        try {
+            Object customerInfo = userService.getDeliveryCustomerInfo(riderId, orderId);
+            return ResponseEntity.ok(customerInfo);
+        } catch (Exception e) {
+            return ResponseEntity.status(403).body(e.getMessage());
+        }
+    }
+    */
+    
+    // ===== CUSTOMER METHODS =====
+    
+    @GetMapping("/{customerId}/customer/restaurants")
+    public ResponseEntity<?> getAllRestaurantsForCustomer(@PathVariable Long customerId) {
+        try {
+            Object restaurants = userService.getAllRestaurantsForCustomer(customerId);
+            return ResponseEntity.ok(restaurants);
+        } catch (Exception e) {
+            return ResponseEntity.status(403).body(e.getMessage());
+        }
+    }
+    
+    @GetMapping("/{customerId}/customer/restaurants/{restaurantId}/menu")
+    public ResponseEntity<?> getRestaurantMenuForCustomer(@PathVariable Long customerId, @PathVariable Long restaurantId) {
+        try {
+            Object menu = userService.getRestaurantMenuForCustomer(customerId, restaurantId);
+            return ResponseEntity.ok(menu);
+        } catch (Exception e) {
+            return ResponseEntity.status(403).body(e.getMessage());
+        }
+    }
+    
+    // These endpoints should be handled by order service
+    /*
+    @PostMapping("/{customerId}/customer/orders")
+    public ResponseEntity<?> placeOrder(@PathVariable Long customerId, @RequestBody Map<String, Object> orderData) {
+        try {
+            Object result = userService.placeOrder(customerId, orderData);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(403).body(e.getMessage());
+        }
+    }
+    
+    @GetMapping("/{customerId}/customer/orders")
+    public ResponseEntity<?> getCustomerOrders(@PathVariable Long customerId) {
+        try {
+            Object orders = userService.getCustomerOrders(customerId);
+            return ResponseEntity.ok(orders);
+        } catch (Exception e) {
+            return ResponseEntity.status(403).body(e.getMessage());
+        }
+    }
+    
+    @GetMapping("/{customerId}/customer/orders/{orderId}")
+    public ResponseEntity<?> getOrderDetails(@PathVariable Long customerId, @PathVariable Long orderId) {
+        try {
+            Object orderDetails = userService.getOrderDetails(customerId, orderId);
+            return ResponseEntity.ok(orderDetails);
+        } catch (Exception e) {
+            return ResponseEntity.status(403).body(e.getMessage());
+        }
+    }
+    
+    @DeleteMapping("/{customerId}/customer/orders/{orderId}")
+    public ResponseEntity<?> cancelOrder(@PathVariable Long customerId, @PathVariable Long orderId) {
+        try {
+            Object result = userService.cancelOrder(customerId, orderId);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(403).body(e.getMessage());
+        }
+    }
+    */
 
 }
