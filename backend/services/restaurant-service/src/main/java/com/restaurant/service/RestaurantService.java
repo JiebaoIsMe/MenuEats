@@ -35,6 +35,15 @@ public class RestaurantService {
 
     
     public Restaurant addRestaurant(Restaurant restaurant){
+        // Auto-assign menu_id based on restaurant ID
+        // Get next menu ID (max existing menu_id + 1)
+        List<Restaurant> allRestaurants = restaurantRepo.findAll();
+        Long nextMenuId = allRestaurants.stream()
+            .mapToLong(r -> r.getMenu_id() != null ? r.getMenu_id() : 0L)
+            .max()
+            .orElse(0L) + 1;
+        
+        restaurant.setMenu_id(nextMenuId);
         return restaurantRepo.save(restaurant);
     }
 

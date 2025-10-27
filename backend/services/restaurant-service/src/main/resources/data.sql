@@ -1,10 +1,10 @@
 -- Restaurant Service Initial Data
-MERGE INTO restaurant (id, name, location, owner_id) KEY(id) VALUES
-(1, 'Pizza Palace', '123 Pizza Street, Little Italy', 4),
-(2, 'Burger Haven', '456 Burger Avenue, Downtown', 5),
-(3, 'Sushi Zen', '789 Sushi Lane, Japan Town', 4),
-(4, 'Taco Fiesta', '321 Taco Road, Mexican Quarter', 5),
-(5, 'Pasta Paradise', '654 Pasta Place, Italian District', 4);
+MERGE INTO restaurant (id, name, location, owner_id, menu_id) KEY(id) VALUES
+(1, 'Pizza Palace', '123 Pizza Street, Little Italy', 4, 1),
+(2, 'Burger Haven', '456 Burger Avenue, Downtown', 5, 2),
+(3, 'Sushi Zen', '789 Sushi Lane, Japan Town', 4, 3),
+(4, 'Taco Fiesta', '321 Taco Road, Mexican Quarter', 5, 4),
+(5, 'Pasta Paradise', '654 Pasta Place, Italian District', 4, 5);
 
 -- Menu Items Initial Data
 MERGE INTO menu_items (id, name, description, price, category, available, restaurant_id) KEY(id) VALUES
@@ -42,3 +42,6 @@ MERGE INTO menu_items (id, name, description, price, category, available, restau
 ('B009', 'Spaghetti Carbonara', 'Spaghetti with eggs, cheese, and pancetta', 13.99, 'main', true, 5),
 ('B010', 'Fettuccine Alfredo', 'Fettuccine pasta in creamy parmesan sauce', 12.99, 'main', true, 5),
 ('C004', 'Gelato', 'Italian ice cream - vanilla, chocolate, or strawberry', 4.99, 'dessert', true, 5);
+
+-- Reset the auto-increment sequence for restaurant table to start from next available ID
+ALTER TABLE restaurant ALTER COLUMN id RESTART WITH 6;

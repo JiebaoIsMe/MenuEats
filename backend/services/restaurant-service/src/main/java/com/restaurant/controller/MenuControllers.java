@@ -50,6 +50,32 @@ public class MenuControllers {
 
     }
 
+    @GetMapping("/restaurants/{restaurantId}/menu")
+    public ResponseEntity<List<MenuResponse>> getMenuByRestaurantId(@PathVariable Long restaurantId) {
+        try {
+            // Get MenuItems from menu service by restaurant ID
+            List<MenuItems> menu_items = menuService.getAllMenuItemsByRestaurantId(restaurantId);
+
+            // Convert List<MenuItems> to List<MenuItemsResponse>
+            List<MenuResponse> menuResponses = new ArrayList<>();
+            for (MenuItems items : menu_items) {
+                MenuResponse response = new MenuResponse();
+                response.setId(items.getId());
+                response.setName(items.getName());
+                response.setDescription(items.getDescription());
+                response.setCategory(items.getCategory());
+                response.setPrice(items.getPrice());
+                response.setAvailable(items.getAvailable());
+                response.setRestaurantId(items.getRestaurantId());
+                menuResponses.add(response);
+            }
+            return new ResponseEntity<>(menuResponses, HttpStatus.OK);
+
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @GetMapping("/menu/{itemId}")
     public ResponseEntity<MenuResponse> getMenuItemById(@PathVariable String itemId) {
         try {
@@ -110,9 +136,12 @@ public class MenuControllers {
         try {
             // Convert CreateMenuRequest to MenuItems object
             MenuItems menu_item = new MenuItems();
-            // TODO(human): Fix the self-assignment bug
-            // Change menu_item.getName() to request.getName() for all fields
-            // Fields: name, description, category, price, available, restaurantId
+            menu_item.setName(request.getName());
+            menu_item.setDescription(request.getDescription());
+            menu_item.setCategory(request.getCategory());
+            menu_item.setPrice(request.getPrice());
+            menu_item.setAvailable(request.isAvailable());
+            menu_item.setRestaurantId(request.getRestaurantId());
             
             // Get updated MenuItems internal data
             MenuItems updated_item = menuService.updateMenuItem(id, menu_item);
@@ -120,6 +149,7 @@ public class MenuControllers {
             // convert result to MenuResponse 
             MenuResponse response = new MenuResponse();
             response.setId(updated_item.getId());
+            response.setName(updated_item.getName());
             response.setDescription(updated_item.getDescription());
             response.setCategory(updated_item.getCategory());
             response.setPrice(updated_item.getPrice());

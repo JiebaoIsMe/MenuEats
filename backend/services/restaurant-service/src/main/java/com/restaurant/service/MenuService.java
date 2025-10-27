@@ -28,6 +28,11 @@ public class MenuService {
         return menuRepo.findByRestaurantId(restaurantId);
     }
 
+    public List<MenuItems> getAllMenuItemsByRestaurantId(Long restaurantId){
+        // Get menu items for this restaurant ID directly
+        return menuRepo.findByRestaurantId(restaurantId);
+    }
+
     public MenuItems getMenuItemById(String id){
         return menuRepo.findById(id).orElseThrow(()-> new EntityNotFoundException(
             "Menu not found with id:" + id
@@ -36,6 +41,44 @@ public class MenuService {
 
     
     public MenuItems createMenuItem(MenuItems menuItem){
+        // Minimal validation: cancel if name already exists
+        if (menuRepo.existsByName(menuItem.getName())) {
+            throw new RuntimeException("Menu item name already exists: " + menuItem.getName());
+        }
+        
+        // Generate ID based on category: A=entree, B=main, C=dessert, D=drink
+        String categoryPrefix;
+        switch(menuItem.getCategory().toLowerCase()) {
+            case "entree": categoryPrefix = "A"; break;
+            case "main": categoryPrefix = "B"; break;
+            case "dessert": categoryPrefix = "C"; break;
+            case "drink": categoryPrefix = "D"; break;
+            default: categoryPrefix = "X"; break; // fallback for unknown categories
+        }
+        
+        // Find next available number for this category
+        List<MenuItems> existingItems = menuRepo.findAll();
+        int nextNumber = existingItems.stream()
+            .filter(item -> item.getId() != null && item.getId().startsWith(categoryPrefix))
+            .mapToInt(item -> {
+                try {
+                    return Integer.parseInt(item.getId().substring(1));
+                } catch (NumberFormatException e) {
+                    return 0;
+                }
+            })
+            .max()
+            .orElse(0) + 1;
+        
+        // Format ID as A001, B001, etc.
+        String newId = categoryPrefix + String.format("%03d", nextNumber);
+        
+        // Minimal validation: cancel if ID already exists
+        if (menuRepo.existsById(newId)) {
+            throw new RuntimeException("Menu item ID already exists: " + newId);
+        }
+        
+        menuItem.setId(newId);
         return menuRepo.save(menuItem);
     }
 

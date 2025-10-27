@@ -31,7 +31,7 @@ public class Order {
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
-        status = OrderStatus.PENDING;
+        status = OrderStatus.NEW;
     }
 
     public void calculateTotalAmount() {

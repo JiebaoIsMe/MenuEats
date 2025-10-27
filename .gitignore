@@ -90,3 +90,6 @@ logs
 # H2 Database files ( if needed )
 # *.mv.db
 # *.trace.db
+
+# Documentation files
+CLAUDE.md

@@ -16,6 +16,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/orders")
+@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001", "http://localhost:3002"})
 public class OrderController {
 
     @Autowired
@@ -50,7 +51,17 @@ public class OrderController {
         }
     }
 
-    @PatchMapping("/{id}/status")
+    @GetMapping("/restaurant/{restaurantId}")
+    public ResponseEntity<List<OrderResponse>> getRestaurantOrders(@PathVariable Long restaurantId) {
+        try {
+            List<OrderResponse> orders = orderService.getOrdersByRestaurantId(restaurantId);
+            return new ResponseEntity<>(orders, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PutMapping("/{id}/status")
     public ResponseEntity<OrderResponse> updateStatus(
             @PathVariable Long id,
             @RequestBody Map<String, String> statusUpdate) {
@@ -72,6 +83,58 @@ public class OrderController {
         try {
             OrderResponse cancelledOrder = orderService.cancelOrder(id);
             return new ResponseEntity<>(cancelledOrder, HttpStatus.OK);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/{id}/accept")
+    public ResponseEntity<OrderResponse> acceptOrder(@PathVariable Long id) {
+        try {
+            OrderResponse acceptedOrder = orderService.acceptOrder(id);
+            return new ResponseEntity<>(acceptedOrder, HttpStatus.OK);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/{id}/reject")
+    public ResponseEntity<OrderResponse> rejectOrder(@PathVariable Long id) {
+        try {
+            OrderResponse rejectedOrder = orderService.rejectOrder(id);
+            return new ResponseEntity<>(rejectedOrder, HttpStatus.OK);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/status/{status}")
+    public ResponseEntity<List<OrderResponse>> getOrdersByStatus(@PathVariable String status) {
+        try {
+            OrderStatus orderStatus = OrderStatus.valueOf(status.toUpperCase());
+            List<OrderResponse> orders = orderService.getOrdersByStatus(orderStatus);
+            return new ResponseEntity<>(orders, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/{id}/assign-rider")
+    public ResponseEntity<OrderResponse> assignRiderToOrder(
+            @PathVariable Long id,
+            @RequestBody Map<String, Long> riderAssignment) {
+        try {
+            Long riderId = riderAssignment.get("riderId");
+            OrderResponse updatedOrder = orderService.assignRiderToOrder(id, riderId);
+            return new ResponseEntity<>(updatedOrder, HttpStatus.OK);
         } catch (EntityNotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (Exception e) {
